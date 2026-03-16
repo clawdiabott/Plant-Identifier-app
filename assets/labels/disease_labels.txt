@@ -1,0 +1,10 @@
+Healthy
+Early blight
+Late blight
+Powdery mildew
+Leaf spot
+Nitrogen deficiency
+Iron deficiency chlorosis
+Bacterial wilt
+Mosaic virus
+Root rot

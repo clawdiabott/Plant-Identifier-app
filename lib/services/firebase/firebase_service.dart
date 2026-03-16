@@ -5,7 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
-class FirebaseService {
+import 'firebase_contract.dart';
+
+class FirebaseService implements FirebaseContract {
   FirebaseService._();
   static final FirebaseService instance = FirebaseService._();
 
@@ -15,6 +17,7 @@ class FirebaseService {
   bool get isInitialized => _initialized;
   FirebaseAnalytics? get analytics => _analytics;
 
+  @override
   Future<void> initializeSafely() async {
     try {
       await Firebase.initializeApp();
@@ -26,15 +29,17 @@ class FirebaseService {
     }
   }
 
-  Future<UserCredential?> signInAnonymously() async {
-    if (!_initialized) return null;
+  @override
+  Future<void> signInAnonymously() async {
+    if (!_initialized) return;
     try {
-      return await FirebaseAuth.instance.signInAnonymously();
+      await FirebaseAuth.instance.signInAnonymously();
     } catch (_) {
-      return null;
+      // Swallow sign-in failures for offline-first usage.
     }
   }
 
+  @override
   Future<String?> uploadPhotoIfAvailable(File file) async {
     if (!_initialized) return null;
     final currentUser = FirebaseAuth.instance.currentUser;
@@ -50,6 +55,7 @@ class FirebaseService {
     }
   }
 
+  @override
   Future<void> logAnalysis({
     required String speciesName,
     required double confidence,

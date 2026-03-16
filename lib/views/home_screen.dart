@@ -1,15 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
+import '../core/routing/app_routes.g.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/saved_plants_controller.dart';
-import 'camera_capture_screen.dart';
-import 'chatbot_screen.dart';
-import 'results_screen.dart';
-import 'saved_plants_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -25,18 +23,14 @@ class HomeScreen extends StatelessWidget {
             onPressed: () async {
               await context.read<SavedPlantsController>().load();
               if (!context.mounted) return;
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const SavedPlantsScreen()),
-              );
+              context.pushNamed(AppRoutes.savedPlantsName);
             },
             icon: const Icon(Icons.bookmark_outline),
           ),
           IconButton(
             tooltip: 'Ask assistant',
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ChatbotScreen()),
-              );
+              context.pushNamed(AppRoutes.chatbotName);
             },
             icon: const Icon(Icons.smart_toy_outlined),
           ),
@@ -93,10 +87,8 @@ class _HomeContent extends StatelessWidget {
                   onPressed: controller.isAnalyzing
                       ? null
                       : () async {
-                          final image = await Navigator.of(context).push<XFile>(
-                            MaterialPageRoute(
-                              builder: (_) => const CameraCaptureScreen(),
-                            ),
+                          final image = await context.pushNamed<XFile>(
+                            AppRoutes.cameraName,
                           );
                           if (image != null) controller.addCapturedImage(image);
                         },
@@ -138,11 +130,7 @@ class _HomeContent extends StatelessWidget {
               : () async {
                   final result = await controller.analyzeSelectedImages();
                   if (result == null || !context.mounted) return;
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => ResultsScreen(analysisResult: result),
-                    ),
-                  );
+                  context.pushNamed(AppRoutes.resultsName, extra: result);
                 },
           icon: controller.isAnalyzing
               ? const SizedBox.square(

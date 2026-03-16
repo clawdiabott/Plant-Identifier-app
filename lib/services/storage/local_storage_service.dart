@@ -1,8 +1,9 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../models/analysis_result.dart';
+import 'local_storage_contract.dart';
 
-class LocalStorageService {
+class LocalStorageService implements LocalStorageContract {
   LocalStorageService._();
   static final LocalStorageService instance = LocalStorageService._();
 
@@ -14,6 +15,7 @@ class LocalStorageService {
   late Box _apiCacheBox;
   late Box _metaBox;
 
+  @override
   Future<void> initialize() async {
     await Hive.initFlutter();
     _savedPlantsBox = await Hive.openBox(_savedPlantsBoxName);
@@ -21,6 +23,7 @@ class LocalStorageService {
     _metaBox = await Hive.openBox(_metaBoxName);
   }
 
+  @override
   Future<void> savePlant(AnalysisResult result) async {
     await _savedPlantsBox.put(
       DateTime.now().microsecondsSinceEpoch.toString(),
@@ -28,6 +31,7 @@ class LocalStorageService {
     );
   }
 
+  @override
   List<AnalysisResult> getSavedPlants() {
     final values = _savedPlantsBox.values.toList(growable: false);
     return values
@@ -39,6 +43,7 @@ class LocalStorageService {
         .toList();
   }
 
+  @override
   Future<void> cacheApiResponse({
     required String key,
     required Map<String, dynamic> data,
@@ -51,6 +56,7 @@ class LocalStorageService {
     await _apiCacheBox.put(key, payload);
   }
 
+  @override
   Map<String, dynamic>? getCachedApiResponse(String key) {
     final value = _apiCacheBox.get(key);
     if (value is! Map) return null;
@@ -69,10 +75,12 @@ class LocalStorageService {
     return null;
   }
 
+  @override
   Future<void> setLastSync(DateTime timestamp) async {
     await _metaBox.put('last_sync', timestamp.toIso8601String());
   }
 
+  @override
   DateTime? getLastSync() {
     final raw = _metaBox.get('last_sync')?.toString();
     return raw == null ? null : DateTime.tryParse(raw);

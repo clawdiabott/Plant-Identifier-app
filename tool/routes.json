@@ -1,0 +1,8 @@
+[
+  { "name": "splash", "path": "/" },
+  { "name": "home", "path": "/home" },
+  { "name": "results", "path": "/results" },
+  { "name": "savedPlants", "path": "/saved-plants" },
+  { "name": "chatbot", "path": "/chatbot" },
+  { "name": "camera", "path": "/camera" }
+]

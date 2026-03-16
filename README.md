@@ -9,7 +9,7 @@ A complete, modular Flutter application for:
 - Dynamic enrichment via API + RSS feed
 - Optional Firebase analytics/auth/storage integration
 
-> Architecture: **MVC** with `models/`, `views/`, `controllers/`, and `services/`.
+> Architecture: **MVC** + **generated routing** + **DI container**.
 
 ---
 
@@ -76,6 +76,12 @@ A complete, modular Flutter application for:
 
 ```text
 lib/
+  core/
+    di/
+      service_locator.dart
+    routing/
+      app_router.dart
+      app_routes.g.dart
   controllers/
     home_controller.dart
     results_controller.dart
@@ -93,7 +99,11 @@ lib/
       perenual_service.dart
     chatbot/
       chatbot_service.dart
+    analysis/
+      plant_analysis_contract.dart
+      plant_analysis_service.dart
     firebase/
+      firebase_contract.dart
       firebase_service.dart
     location/
       location_service.dart
@@ -101,6 +111,7 @@ lib/
       cloud_ml_fallback_service.dart
       tflite_service.dart
     storage/
+      local_storage_contract.dart
       local_storage_service.dart
     sync/
       background_sync_service.dart
@@ -118,28 +129,78 @@ lib/
     photo_preview.dart
     severity_chip.dart
   main.dart
+tool/
+  routes.json
+  generate_routes.dart
+test/
+  controllers/
+  services/
+  widgets/
 ```
 
 ---
 
 ## Setup Instructions
 
-### 1) Install Flutter
+### 1) Install Flutter (Linux)
 
-Install a current stable Flutter SDK and verify:
+You can run these commands from **any terminal directory** (not tied to this repo):
 
 ```bash
+cd ~
+git clone https://github.com/flutter/flutter.git -b stable "$HOME/development/flutter"
+echo 'export PATH="$HOME/development/flutter/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
 flutter --version
 dart --version
 ```
 
-### 2) Get dependencies
+Accept Android licenses after Android SDK install:
 
 ```bash
+flutter doctor --android-licenses
+flutter doctor -v
+```
+
+### 2) Download this project locally
+
+You can clone into any folder you like:
+
+```bash
+cd ~/development
+git clone https://github.com/clawdiabott/Plant-Identifier-app.git
+cd Plant-Identifier-app
+git checkout cursor/plant-identification-app-834f
+```
+
+### 3) Generate route constants (optional)
+
+Routes are committed in `lib/core/routing/app_routes.g.dart`, but you can regenerate:
+
+```bash
+dart tool/generate_routes.dart
+```
+
+### 4) Generate Flutter platform scaffolding (first time only)
+
+If your clone does not yet include complete native project files, run:
+
+```bash
+flutter create .
+```
+
+Then re-check hardened manifests in `android/` and `ios/`.
+
+### 5) Get dependencies
+
+Run this **inside the project folder**:
+
+```bash
+flutter --version
 flutter pub get
 ```
 
-### 3) Add ML assets
+### 6) Add ML assets
 
 Put files in `assets/models/`:
 
@@ -151,7 +212,7 @@ Labels are configured in:
 - `assets/labels/plant_labels.txt`
 - `assets/labels/disease_labels.txt`
 
-### 4) Configure API key (Perenual)
+### 7) Configure API key (Perenual)
 
 Pass API key using Dart define:
 
@@ -159,7 +220,7 @@ Pass API key using Dart define:
 flutter run --dart-define=PERENUAL_API_KEY=YOUR_KEY_HERE
 ```
 
-### 5) Optional Firebase setup
+### 8) Optional Firebase setup
 
 1. Add Firebase configs:
    - `android/app/google-services.json`
@@ -169,15 +230,31 @@ flutter run --dart-define=PERENUAL_API_KEY=YOUR_KEY_HERE
 
 App behavior remains functional if Firebase is not configured.
 
-### 6) iOS / Android permissions
+### 9) iOS / Android permissions + production hardening
 
-Add runtime permission declarations in platform manifests:
+Hardened templates are included in this repository:
 
-- Camera
-- Photos/Storage
-- Location (when in use)
+- `android/app/src/main/AndroidManifest.xml`
+- `android/app/src/main/res/xml/network_security_config.xml`
+- `android/app/src/main/res/xml/backup_rules.xml`
+- `android/app/src/main/res/xml/data_extraction_rules.xml`
+- `ios/Runner/Info.plist`
 
-### 7) Run app
+These enforce:
+
+- no cleartext traffic by default
+- strict backup/data extraction exclusions
+- explicit camera/photo/location usage descriptions
+
+Always minimize requested permissions before release.
+
+### 10) Run tests
+
+```bash
+flutter test
+```
+
+### 11) Run app
 
 ```bash
 flutter run

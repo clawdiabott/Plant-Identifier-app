@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../core/routing/app_routes.g.dart';
 import '../controllers/saved_plants_controller.dart';
-import 'results_screen.dart';
 
 class SavedPlantsScreen extends StatelessWidget {
   const SavedPlantsScreen({super.key});
@@ -36,11 +37,7 @@ class SavedPlantsScreen extends StatelessWidget {
                   isThreeLine: true,
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => ResultsScreen(analysisResult: item),
-                      ),
-                    );
+                    context.pushNamed(AppRoutes.resultsName, extra: item);
                   },
                 ),
               );

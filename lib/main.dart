@@ -1,30 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'core/di/service_locator.dart';
+import 'core/routing/app_router.dart';
 import 'controllers/home_controller.dart';
 import 'controllers/results_controller.dart';
 import 'controllers/saved_plants_controller.dart';
 import 'services/chatbot/chatbot_service.dart';
-import 'services/firebase/firebase_service.dart';
-import 'services/location/location_service.dart';
-import 'services/ml/cloud_ml_fallback_service.dart';
-import 'services/ml/tflite_service.dart';
-import 'services/storage/local_storage_service.dart';
+import 'services/firebase/firebase_contract.dart';
+import 'services/storage/local_storage_contract.dart';
 import 'services/sync/background_sync_service.dart';
 import 'theme/app_theme.dart';
-import 'views/splash_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await setupServiceLocator();
+
   // Initialize local persistence first because the app uses it for
   // offline mode, cached API responses, and saved plants.
-  await LocalStorageService.instance.initialize();
+  await sl<LocalStorageContract>().initialize();
 
   // Initialize Firebase in "safe mode" (non-fatal if config is missing),
   // allowing local-only deployments and simple onboarding.
-  await FirebaseService.instance.initializeSafely();
-  await FirebaseService.instance.signInAnonymously();
+  await sl<FirebaseContract>().initializeSafely();
+  await sl<FirebaseContract>().signInAnonymously();
 
   // Prepare background refresh jobs for periodic disease/treatment updates.
   await BackgroundSyncService.instance.initialize();
@@ -37,35 +37,27 @@ class PlantIdentifierApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final router = AppRouter.buildRouter();
     return MultiProvider(
       providers: [
-        Provider<TFLiteService>(create: (_) => TFLiteService.instance),
-        Provider<CloudMlFallbackService>(
-          create: (_) => CloudMlFallbackService.instance,
-        ),
-        Provider<LocationService>(create: (_) => LocationService.instance),
-        Provider<ChatbotService>(create: (_) => ChatbotService.instance),
+        Provider<ChatbotService>(create: (_) => sl<ChatbotService>()),
         ChangeNotifierProvider<HomeController>(
-          create: (context) => HomeController(
-            tfliteService: context.read<TFLiteService>(),
-            cloudFallbackService: context.read<CloudMlFallbackService>(),
-            locationService: context.read<LocationService>(),
-          ),
+          create: (_) => sl<HomeController>(),
         ),
         ChangeNotifierProvider<ResultsController>(
-          create: (_) => ResultsController(),
+          create: (_) => sl<ResultsController>(),
         ),
         ChangeNotifierProvider<SavedPlantsController>(
-          create: (_) => SavedPlantsController(),
+          create: (_) => sl<SavedPlantsController>(),
         ),
       ],
-      child: MaterialApp(
+      child: MaterialApp.router(
         title: 'Plant Identifier',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: ThemeMode.system,
-        home: const SplashScreen(),
+        routerConfig: router,
       ),
     );
   }

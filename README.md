@@ -260,6 +260,20 @@ flutter test
 flutter run
 ```
 
+### 12) Easiest low-storage Android testing (cloud APK)
+
+If you do not want Android Studio/emulator files on your machine:
+
+1. Push your branch to GitHub.
+2. Open **GitHub → Actions → "Build Android APK (Cloud)"**.
+3. Click **Run workflow** (choose branch if needed).
+4. Wait for the job to complete.
+5. Download artifact: `plant-identifier-debug-apk`.
+6. On Android phone, install the extracted `app-debug.apk`
+   (allow "Install unknown apps" for your file manager/browser).
+
+This builds the APK in GitHub’s cloud runners, so your local disk usage stays minimal.
+
 ---
 
 ## Accuracy Notes (95%+ Target)

@@ -34,7 +34,7 @@ class BackgroundSyncService {
         frequency: const Duration(days: 7),
         initialDelay: const Duration(minutes: 5),
         constraints: Constraints(networkType: NetworkType.connected),
-        existingWorkPolicy: ExistingWorkPolicy.keep,
+        existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
       );
     } catch (_) {
       // Ignore on unsupported platforms or incomplete native setup.

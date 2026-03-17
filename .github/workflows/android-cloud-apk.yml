@@ -46,7 +46,7 @@ jobs:
         run: flutter pub get
 
       - name: Ensure Android host project exists
-        run: flutter create --platforms=android .
+        run: flutter create --platforms=android --overwrite .
 
       - name: Build debug APK
         run: flutter build apk --debug

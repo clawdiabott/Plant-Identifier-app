@@ -14,9 +14,7 @@ class LocationService {
 
     try {
       final pos = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.medium,
-        ),
+        desiredAccuracy: LocationAccuracy.medium,
       );
       return 'Lat ${pos.latitude.toStringAsFixed(3)}, '
           'Lon ${pos.longitude.toStringAsFixed(3)}';

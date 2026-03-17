@@ -5,7 +5,7 @@ class AppTheme {
         colorSchemeSeed: Colors.green,
         useMaterial3: true,
         brightness: Brightness.light,
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           elevation: 1.5,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         ),
@@ -15,7 +15,7 @@ class AppTheme {
         colorSchemeSeed: Colors.green,
         useMaterial3: true,
         brightness: Brightness.dark,
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           elevation: 1.5,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         ),

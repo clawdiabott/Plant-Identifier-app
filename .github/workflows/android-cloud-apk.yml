@@ -42,7 +42,12 @@ jobs:
         run: flutter pub get
 
       - name: Ensure Android host project exists
-        run: flutter create --platforms=android --overwrite .
+        run: |
+          if [ ! -f android/app/build.gradle.kts ]; then
+            flutter create --platforms=android --project-name plant_identifier_app /tmp/plant_identifier_bootstrap
+            mkdir -p android
+            rsync -a --ignore-existing /tmp/plant_identifier_bootstrap/android/ android/
+          fi
 
       - name: Build debug APK
         run: flutter build apk --debug

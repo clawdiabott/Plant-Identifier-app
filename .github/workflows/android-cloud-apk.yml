@@ -34,11 +34,20 @@ jobs:
 
       - name: Show toolchain versions
         run: |
+          echo "Building ref: $GITHUB_REF"
+          echo "Building SHA: $GITHUB_SHA"
           flutter --version
           dart --version
 
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Verify app entrypoint is not Flutter demo
+        run: |
+          if rg -n "You have pushed the button this many times" lib/main.dart; then
+            echo "Detected Flutter counter demo in lib/main.dart. Aborting build."
+            exit 1
+          fi
 
       - name: Ensure Android host project exists
         run: |
@@ -46,6 +55,12 @@ jobs:
             flutter create --platforms=android --project-name plant_identifier_app /tmp/plant_identifier_bootstrap
             mkdir -p android
             rsync -a --ignore-existing /tmp/plant_identifier_bootstrap/android/ android/
+          fi
+
+      - name: Force unique Android applicationId for test installs
+        run: |
+          if [ -f android/app/build.gradle.kts ]; then
+            sed -i 's/applicationId = "com.example.plant_identifier_app"/applicationId = "com.clawdiabott.plantidentifier"/' android/app/build.gradle.kts || true
           fi
 
       - name: Build debug APK

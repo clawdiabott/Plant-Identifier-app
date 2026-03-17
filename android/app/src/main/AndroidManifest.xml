@@ -24,6 +24,10 @@
         android:requestLegacyExternalStorage="false"
         android:supportsRtl="true"
         android:usesCleartextTraffic="false">
+        <!-- Explicitly opt into Android v2 embedding. -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
 
         <activity
             android:name=".MainActivity"

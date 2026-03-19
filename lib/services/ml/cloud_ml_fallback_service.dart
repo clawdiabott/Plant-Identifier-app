@@ -19,6 +19,11 @@ class CloudMlFallbackService {
       if (labels.isEmpty) return null;
       final top = labels.first;
       final label = top.label.isEmpty ? 'Unknown Plant' : top.label;
+      if (_isGenericObjectLabel(label)) {
+        // MLKit image labeling is object-centric and often returns generic
+        // labels like "flowerpot". Ignore those for species identification.
+        return null;
+      }
       return PlantPrediction(
         speciesName: label,
         scientificName: label,
@@ -66,5 +71,23 @@ class CloudMlFallbackService {
     if (confidence >= 0.65) return SeverityLevel.high;
     if (confidence >= 0.4) return SeverityLevel.medium;
     return SeverityLevel.low;
+  }
+
+  bool _isGenericObjectLabel(String label) {
+    final lower = label.toLowerCase();
+    const generic = {
+      'flower pot',
+      'flowerpot',
+      'plant',
+      'potted plant',
+      'houseplant',
+      'leaf',
+      'flora',
+      'greenery',
+      'tree',
+      'shrub',
+      'vegetation',
+    };
+    return generic.contains(lower);
   }
 }

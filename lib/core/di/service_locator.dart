@@ -5,6 +5,7 @@ import '../../controllers/results_controller.dart';
 import '../../controllers/saved_plants_controller.dart';
 import '../../services/analysis/plant_analysis_contract.dart';
 import '../../services/analysis/plant_analysis_service.dart';
+import '../../services/api/plantnet_identification_service.dart';
 import '../../services/chatbot/chatbot_service.dart';
 import '../../services/firebase/firebase_contract.dart';
 import '../../services/firebase/firebase_service.dart';
@@ -30,6 +31,9 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<CloudMlFallbackService>(
     () => CloudMlFallbackService.instance,
   );
+  sl.registerLazySingleton<PlantNetIdentificationService>(
+    () => PlantNetIdentificationService.instance,
+  );
   sl.registerLazySingleton<LocationService>(() => LocationService.instance);
   sl.registerLazySingleton<ChatbotService>(() => ChatbotService.instance);
 
@@ -37,6 +41,7 @@ Future<void> setupServiceLocator() async {
     () => PlantAnalysisService(
       tfliteService: sl<TFLiteService>(),
       cloudFallbackService: sl<CloudMlFallbackService>(),
+      plantNetService: sl<PlantNetIdentificationService>(),
       locationService: sl<LocationService>(),
       firebaseService: sl<FirebaseContract>(),
     ),

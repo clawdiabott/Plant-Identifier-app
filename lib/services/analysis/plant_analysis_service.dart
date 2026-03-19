@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../models/analysis_result.dart';
 import '../../models/disease_report.dart';
 import '../../models/ml_prediction.dart';
+import '../api/plantnet_identification_service.dart';
 import '../api/perenual_service.dart';
 import '../firebase/firebase_contract.dart';
 import '../location/location_service.dart';
@@ -14,15 +15,18 @@ class PlantAnalysisService implements PlantAnalysisContract {
   PlantAnalysisService({
     required TFLiteService tfliteService,
     required CloudMlFallbackService cloudFallbackService,
+    required PlantNetIdentificationService plantNetService,
     required LocationService locationService,
     required FirebaseContract firebaseService,
   }) : _tfliteService = tfliteService,
        _cloudFallbackService = cloudFallbackService,
+       _plantNetService = plantNetService,
        _locationService = locationService,
        _firebaseService = firebaseService;
 
   final TFLiteService _tfliteService;
   final CloudMlFallbackService _cloudFallbackService;
+  final PlantNetIdentificationService _plantNetService;
   final LocationService _locationService;
   final FirebaseContract _firebaseService;
 
@@ -40,7 +44,12 @@ class PlantAnalysisService implements PlantAnalysisContract {
       final localPlantPrediction = await _tfliteService.identifyPlant(bytes);
       PlantPrediction? plantPrediction = localPlantPrediction;
 
-      if (plantPrediction == null || plantPrediction.confidence < 0.45) {
+      if (_needsCloudSpeciesFallback(plantPrediction)) {
+        usedCloudFallback = true;
+        plantPrediction = await _plantNetService.identifyFromImage(image.path);
+      }
+
+      if (_needsCloudSpeciesFallback(plantPrediction)) {
         usedCloudFallback = true;
         plantPrediction = await _cloudFallbackService.identifyPlantWithMlKit(
           image.path,
@@ -99,6 +108,27 @@ class PlantAnalysisService implements PlantAnalysisContract {
     );
 
     return result;
+  }
+
+  bool _needsCloudSpeciesFallback(PlantPrediction? prediction) {
+    if (prediction == null) return true;
+    if (prediction.confidence < 0.45) return true;
+    final label = prediction.speciesName.toLowerCase().trim();
+    const generic = {
+      'flower pot',
+      'flowerpot',
+      'plant',
+      'potted plant',
+      'houseplant',
+      'leaf',
+      'flora',
+      'greenery',
+      'tree',
+      'shrub',
+      'vegetation',
+      'unknown plant',
+    };
+    return generic.contains(label);
   }
 
   DiseaseReport _buildDiseaseReport(List<DiseasePrediction> predictions) {

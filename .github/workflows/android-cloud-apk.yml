@@ -64,7 +64,10 @@ jobs:
           fi
 
       - name: Build debug APK
-        run: flutter build apk --debug
+        run: |
+          flutter build apk --debug \
+            --dart-define=PLANTNET_API_KEY=${{ secrets.PLANTNET_API_KEY }} \
+            --dart-define=PERENUAL_API_KEY=${{ secrets.PERENUAL_API_KEY }}
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v6

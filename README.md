@@ -220,7 +220,19 @@ Pass API key using Dart define:
 flutter run --dart-define=PERENUAL_API_KEY=YOUR_KEY_HERE
 ```
 
-### 8) Optional Firebase setup
+### 8) (Recommended) Configure PlantNet key for smarter photo ID
+
+Without this key, fallback may rely on generic on-device object labels.
+Create a free key and run with:
+
+```bash
+flutter run --dart-define=PLANTNET_API_KEY=YOUR_KEY_HERE --dart-define=PERENUAL_API_KEY=YOUR_KEY_HERE
+```
+
+Cloud APK workflow users can add `PLANTNET_API_KEY` as a GitHub Actions secret
+and pass it into build commands for best species accuracy.
+
+### 9) Optional Firebase setup
 
 1. Add Firebase configs:
    - `android/app/google-services.json`
@@ -230,7 +242,7 @@ flutter run --dart-define=PERENUAL_API_KEY=YOUR_KEY_HERE
 
 App behavior remains functional if Firebase is not configured.
 
-### 9) iOS / Android permissions + production hardening
+### 10) iOS / Android permissions + production hardening
 
 Hardened templates are included in this repository:
 
@@ -248,19 +260,19 @@ These enforce:
 
 Always minimize requested permissions before release.
 
-### 10) Run tests
+### 11) Run tests
 
 ```bash
 flutter test
 ```
 
-### 11) Run app
+### 12) Run app
 
 ```bash
 flutter run
 ```
 
-### 12) Easiest low-storage Android testing (cloud APK)
+### 13) Easiest low-storage Android testing (cloud APK)
 
 If you do not want Android Studio/emulator files on your machine:
 
